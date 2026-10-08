@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
-import Footer from "./footer";
+import Footer, { type ActiveView } from "./footer";
 
 type AuthMode = "activate" | "login";
 type ActivationStep = "code" | "privacy" | "pin" | "completed";
 
 export default function HomeClient() {
+  const [activeView, setActiveView] = useState<ActiveView>("home");
   const [authMode, setAuthMode] = useState<AuthMode>("activate");
   const [activationStep, setActivationStep] = useState<ActivationStep>("code");
   const [activationCode, setActivationCode] = useState("");
@@ -16,6 +17,47 @@ export default function HomeClient() {
   const [newPin, setNewPin] = useState(["", "", "", ""]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sessionSuccess, setSessionSuccess] = useState(false);
+
+  // Sync active view with window hash on load and hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === "#privacy") {
+        setActiveView("privacy");
+      } else if (hash === "#terms") {
+        setActiveView("terms");
+      } else {
+        setActiveView("home");
+      }
+    };
+
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  // Dynamically update document title based on the active view
+  useEffect(() => {
+    if (activeView === "privacy") {
+      document.title = "Privacy Policy | Spotter";
+    } else if (activeView === "terms") {
+      document.title = "Terms of Service | Spotter";
+    } else {
+      document.title = "Spotter";
+    }
+  }, [activeView]);
+
+  const handleSelectView = (view: ActiveView) => {
+    setActiveView(view);
+    if (typeof window !== "undefined") {
+      if (view === "home") {
+        window.history.replaceState(null, "", window.location.pathname);
+      } else {
+        window.location.hash = view;
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Handle 8-character activation code submission (FR-1, FR-2)
   const handleActivationCodeSubmit = (e: React.FormEvent) => {
@@ -87,7 +129,13 @@ export default function HomeClient() {
     <div className={styles.container}>
       {/* Top Brand Header */}
       <header className={styles.header}>
-        <div className={styles.brandGroup}>
+        <button
+          type="button"
+          onClick={() => handleSelectView("home")}
+          className={styles.brandGroup}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          aria-label="Spotter Home"
+        >
           <Image
             src="/icon.svg"
             alt="Spotter"
@@ -97,13 +145,20 @@ export default function HomeClient() {
             className={styles.logoImage}
           />
           <span className={styles.brandName}>Spotter</span>
-        </div>
-        <span className={styles.badge}>Member App</span>
+        </button>
+        <span className={styles.badge}>
+          {activeView === "privacy"
+            ? "Privacy Notice"
+            : activeView === "terms"
+            ? "Terms of Service"
+            : "Member App"}
+        </span>
       </header>
 
       {/* Main 100vh Content */}
       <main className={styles.mainContent}>
-        <section className={styles.heroCard}>
+        {activeView === "home" && (
+          <section className={styles.heroCard}>
           <div className={styles.heroHeader}>
             <span className={styles.eyebrow}>Your Gym, Your Records</span>
             <h1 className={styles.heroTitle}>Spotter</h1>
@@ -287,8 +342,127 @@ export default function HomeClient() {
             .
           </div>
         </section>
+        )}
+
+        {/* Conditional Privacy Notice View (FR-3, FR-58) */}
+        {activeView === "privacy" && (
+          <section className={styles.viewContainer} aria-labelledby="privacy-heading">
+            <div className={styles.viewHeader}>
+              <span className={styles.viewBadge}>Privacy Notice</span>
+              <h1 id="privacy-heading" className={styles.viewTitle}>Data Privacy Notice</h1>
+              <p className={styles.viewSubtitle}>
+                How Spotter safeguards and processes member records.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>1. Data Controller &amp; Processor</h2>
+              <p className={styles.viewSectionBody}>
+                The gym is your data controller. Spotter acts solely as a data processor.
+                We operate under Nigerian data protection laws (NDPA/NDPR) to maintain the integrity
+                and confidentiality of your personal records.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>2. What Records Are Stored</h2>
+              <p className={styles.viewSectionBody}>
+                Spotter stores only information necessary to verify your membership: attendance timestamps,
+                subscription validity dates, payment receipts, ledger records, and device activation hashes.
+                Your PIN is hashed using Argon2id and is never stored in plain text or logged.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>3. Private Data Protection</h2>
+              <p className={styles.viewSectionBody}>
+                Private records are accessed strictly by exact member ID verified through the server session.
+                Private records are never embedded into vector indexes, never searched by meaning across members,
+                and never exposed to general artificial intelligence models.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>4. Member Rights &amp; Exit Export</h2>
+              <p className={styles.viewSectionBody}>
+                You have the right to inspect your private records at any time directly in the app.
+                Upon request at the front desk, an export or deletion of your records will be processed
+                in accordance with gym retention policies.
+              </p>
+            </div>
+
+            <div className={styles.viewBackRow}>
+              <button
+                type="button"
+                onClick={() => handleSelectView("home")}
+                className={styles.viewBackButton}
+              >
+                &larr; Return to Spotter
+              </button>
+            </div>
+          </section>
+        )}
+
+        {/* Conditional Terms of Service View (FR-19, FR-20) */}
+        {activeView === "terms" && (
+          <section className={styles.viewContainer} aria-labelledby="terms-heading">
+            <div className={styles.viewHeader}>
+              <span className={styles.viewBadge}>Terms of Service</span>
+              <h1 id="terms-heading" className={styles.viewTitle}>Gym Terms of Service</h1>
+              <p className={styles.viewSubtitle}>
+                Standard member rules, check-in terms, and subscription policies.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>1. Single Device Binding</h2>
+              <p className={styles.viewSectionBody}>
+                Each member is issued a unique one-time activation code by the front desk.
+                Your account is bound to one active mobile device at a time. Activating on a new device
+                automatically revokes earlier sessions to protect your records.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>2. Check-In &amp; Access Hours</h2>
+              <p className={styles.viewSectionBody}>
+                Check-in is recorded using the daily 4-digit code displayed at the gym front desk.
+                Members may check in at most once per calendar day during official opening hours.
+                Check-in requires active network connectivity.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>3. Subscriptions &amp; Grace Period</h2>
+              <p className={styles.viewSectionBody}>
+                Access is granted based on your active membership plan. Following expiration,
+                a 3-day grace period is provided. Members past grace cannot check in until subscription
+                renewal is completed and verified.
+              </p>
+            </div>
+
+            <div className={styles.viewSection}>
+              <h2 className={styles.viewSectionTitle}>4. Payments &amp; Receipts</h2>
+              <p className={styles.viewSectionBody}>
+                All in-app subscription payments and arrears are processed securely via our payment gateway.
+                Spotter never stores payment card details. Official receipts are generated for every verified
+                transaction and remain accessible in your payment history.
+              </p>
+            </div>
+
+            <div className={styles.viewBackRow}>
+              <button
+                type="button"
+                onClick={() => handleSelectView("home")}
+                className={styles.viewBackButton}
+              >
+                &larr; Return to Spotter
+              </button>
+            </div>
+          </section>
+        )}
       </main>
-      <Footer />
+      <Footer activeView={activeView} onSelectView={handleSelectView} />
     </div>
   );
 }

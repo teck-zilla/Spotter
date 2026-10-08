@@ -309,3 +309,110 @@
 .footerLink:hover {
   text-decoration: underline;
 }
+
+/* Conditional Views (Privacy Policy & Terms of Service) */
+.viewContainer {
+  width: 100%;
+  max-width: 580px;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: var(--effect-soft-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.viewHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: 16px;
+}
+
+.viewBadge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+  font-size: var(--typography-label-small-font-size);
+  font-weight: var(--typography-label-small-font-weight);
+}
+
+.viewTitle {
+  font-size: var(--typography-headline-small-font-size);
+  line-height: var(--typography-headline-small-line-height);
+  font-weight: var(--typography-headline-small-font-weight);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.viewSubtitle {
+  font-size: var(--typography-body-medium-font-size);
+  line-height: var(--typography-body-medium-line-height);
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.viewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.viewSectionTitle {
+  font-size: var(--typography-title-small-font-size);
+  line-height: var(--typography-title-small-line-height);
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.viewSectionBody {
+  font-size: var(--typography-body-small-font-size);
+  line-height: 1.6;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+.viewBackRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 16px;
+  margin-top: 4px;
+}
+
+.viewBackButton {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: var(--typography-label-large-font-size);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.viewBackButton:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+@media (max-width: 600px) {
+  .viewContainer {
+    padding: 24px 20px;
+    gap: 18px;
+  }
+}
+

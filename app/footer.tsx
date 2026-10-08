@@ -1,21 +1,50 @@
-import Link from "next/link";
 import styles from "./footer.module.css";
 
-export default function Footer() {
+export type ActiveView = "home" | "privacy" | "terms";
+
+interface FooterProps {
+  activeView?: ActiveView;
+  onSelectView?: (view: ActiveView) => void;
+}
+
+export default function Footer({ activeView = "home", onSelectView }: FooterProps) {
+  const handleNav = (e: React.MouseEvent, view: ActiveView) => {
+    e.preventDefault();
+    if (onSelectView) {
+      onSelectView(view);
+    }
+  };
+
   return (
     <footer className={styles.footer} role="contentinfo">
       <div className={styles.footerLeft}>
-        <Link href="/" className={styles.footerBrandLink}>
+        <a
+          href="#"
+          onClick={(e) => handleNav(e, "home")}
+          className={styles.footerBrandLink}
+        >
           Spotter gym member system
-        </Link>
+        </a>
       </div>
       <div className={styles.footerRight}>
-        <Link href="/privacy" className={styles.footerNavLink}>
+        <a
+          href="#privacy"
+          onClick={(e) => handleNav(e, "privacy")}
+          className={`${styles.footerNavLink} ${
+            activeView === "privacy" ? styles.footerNavLinkActive : ""
+          }`}
+        >
           privacy policy
-        </Link>
-        <Link href="/terms" className={styles.footerNavLink}>
+        </a>
+        <a
+          href="#terms"
+          onClick={(e) => handleNav(e, "terms")}
+          className={`${styles.footerNavLink} ${
+            activeView === "terms" ? styles.footerNavLinkActive : ""
+          }`}
+        >
           terms of service
-        </Link>
+        </a>
       </div>
     </footer>
   );
