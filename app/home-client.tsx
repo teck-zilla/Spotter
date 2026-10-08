@@ -17,6 +17,18 @@ export default function HomeClient() {
   const [newPin, setNewPin] = useState(["", "", "", ""]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [sessionSuccess, setSessionSuccess] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Sync active view with window hash on load and hash changes
   useEffect(() => {
@@ -49,6 +61,7 @@ export default function HomeClient() {
 
   const handleSelectView = (view: ActiveView) => {
     setActiveView(view);
+    setMobileMenuOpen(false);
     if (typeof window !== "undefined") {
       if (view === "home") {
         window.history.replaceState(null, "", window.location.pathname);
@@ -56,6 +69,21 @@ export default function HomeClient() {
         window.location.hash = view;
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleGetStarted = () => {
+    setActiveView("home");
+    setAuthMode("activate");
+    setActivationStep("code");
+    setMobileMenuOpen(false);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", window.location.pathname);
+      setTimeout(() => {
+        const el = document.getElementById("activationCode");
+        el?.focus();
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
     }
   };
 
@@ -131,7 +159,10 @@ export default function HomeClient() {
       <header className={styles.header}>
         <button
           type="button"
-          onClick={() => handleSelectView("home")}
+          onClick={() => {
+            handleSelectView("home");
+            setMobileMenuOpen(false);
+          }}
           className={styles.brandGroup}
           style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
           aria-label="Spotter Home"
@@ -146,13 +177,78 @@ export default function HomeClient() {
           />
           <span className={styles.brandName}>Spotter</span>
         </button>
-        <span className={styles.badge}>
-          {activeView === "privacy"
-            ? "Privacy Notice"
-            : activeView === "terms"
-            ? "Terms of Service"
-            : "Member App"}
-        </span>
+
+        <div className={styles.headerRight}>
+          <span className={styles.badge}>
+            {activeView === "privacy"
+              ? "Privacy Notice"
+              : activeView === "terms"
+              ? "Terms of Service"
+              : "Member App"}
+          </span>
+
+          {/* Desktop Get Started button */}
+          <button
+            type="button"
+            onClick={handleGetStarted}
+            className={styles.desktopGetStartedBtn}
+          >
+            Get Started
+          </button>
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            type="button"
+            className={styles.hamburgerBtn}
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            ) : (
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Dropdown Menu: Revealed only when user clicks hamburger icon */}
+        {mobileMenuOpen && (
+          <div className={styles.mobileMenu} role="dialog" aria-label="Mobile Navigation">
+            <button
+              type="button"
+              onClick={handleGetStarted}
+              className={styles.mobileGetStartedBtn}
+            >
+              Get Started
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Main 100vh Content */}

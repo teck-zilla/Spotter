@@ -11,6 +11,7 @@
 }
 
 .header {
+  position: relative;
   width: 100%;
   display: flex;
   align-items: center;
@@ -18,6 +19,110 @@
   padding: 16px 20px;
   background-color: var(--color-surface-container-lowest);
   box-shadow: var(--effect-soft-shadow);
+  z-index: 50;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.desktopGetStartedBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: inherit;
+  font-size: var(--typography-label-medium-font-size);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--effect-soft-shadow);
+  transition: all 0.2s ease;
+}
+
+.desktopGetStartedBtn:hover {
+  background-color: var(--color-on-primary-container);
+  transform: translateY(-1px);
+}
+
+.hamburgerBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 7px;
+  border-radius: 10px;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hamburgerBtn:hover {
+  background-color: var(--color-surface-variant);
+  color: var(--color-primary);
+}
+
+.hamburgerBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: var(--color-surface-container-lowest);
+  border-bottom: 1px solid var(--color-outline-variant);
+  box-shadow: var(--effect-medium-shadow);
+  padding: 16px 20px 20px 20px;
+  z-index: 49;
+  flex-direction: column;
+  gap: 12px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobileGetStartedBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-family: inherit;
+  font-size: var(--typography-label-large-font-size);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--effect-soft-shadow);
+  transition: all 0.2s ease;
+}
+
+.mobileGetStartedBtn:hover {
+  background-color: var(--color-on-primary-container);
 }
 
 .brandGroup {
@@ -409,7 +514,19 @@
   opacity: 0.85;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
+  .desktopGetStartedBtn {
+    display: none;
+  }
+
+  .hamburgerBtn {
+    display: flex;
+  }
+
+  .mobileMenu {
+    display: flex;
+  }
+
   .viewContainer {
     padding: 24px 20px;
     gap: 18px;
