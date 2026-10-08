@@ -1,0 +1,158 @@
+/* Spotter Design Tokens - Generated from design-tokens.tokens.json */
+
+:root {
+  /* Font Family */
+  --font-family-base: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Color Roles */
+  --color-primary: #0f4ee3ff;
+  --color-on-primary: #fdfdfdff;
+  --color-primary-container: #eceffdff;
+  --color-on-primary-container: #0f42b0ff;
+  --color-secondary: #4e5f94ff;
+  --color-on-secondary: #ffffffff;
+  --color-secondary-container: #d9e2fdff;
+  --color-on-secondary-container: #38497eff;
+  --color-tertiary: #5c6782ff;
+  --color-tertiary-container: #ffffffff;
+  --color-on-tertiary: #d9e2fdff;
+  --color-on-tertiary-container: #46506bff;
+  --color-error: #bd2727ff;
+  --color-on-error: #ffffffff;
+  --color-error-container: #fdece9ff;
+  --color-on-error-container: #980f12ff;
+  --color-surface: #f7f7fdff;
+  --color-on-surface: #0f0f0fff;
+  --color-surface-variant: #ebeef9ff;
+  --color-on-surface-variant: #4d515cff;
+  --color-surface-container-highest: #e1e2e8ff;
+  --color-surface-container-high: #e8e8e8ff;
+  --color-surface-container-low: #f2f2f3ff;
+  --color-surface-container: #ecededff;
+  --color-surface-container-lowest: #ffffffff;
+  --color-inverse-surface: #3a3c40ff;
+  --color-inverse-on-surface: #efeff5ff;
+  --color-surface-tint: #0f4ee3ff;
+  --color-outline-color: #c3c7d3ff;
+  --color-outline-variant: #dde1edff;
+  --color-primary-fixed: #d9e2fdff;
+  --color-on-primary-fixed: #0f225bff;
+  --color-primary-fixed-dim: #9fb2fdff;
+  --color-on-primary-fixed-variant: #0f42b0ff;
+  --color-inverse-primary: #9fb2fdff;
+  --color-secondary-fixed: #d9e2fdff;
+  --color-on-secondary-fixed: #0f225bff;
+  --color-secondary-fixed-dim: #adbef4ff;
+  --color-on-secondary-fixed-variant: #38497eff;
+  --color-tertiary-fixed: #d9e2fdff;
+  --color-on-tertiary-fixed: #1e2840ff;
+  --color-tertiary-fixed-dim: #bbc4e1ff;
+  --color-on-tertiary-fixed-variant: #46506bff;
+  --color-background: #fbf9fdff;
+  --color-on-background: #0f0f0fff;
+  --color-surface-bright: #f7f7fdff;
+  --color-surface-dim: #d9dadbff;
+  --color-scrim: #0f0f0fff;
+  --color-shadow: #0f225bff;
+
+  /* Typography */
+  --typography-display-large-font-size: 64px;
+  --typography-display-large-line-height: 96px;
+  --typography-display-large-font-weight: 600;
+  --typography-display-large-letter-spacing: -2.24px;
+
+  --typography-display-medium-font-size: 50px;
+  --typography-display-medium-line-height: 75px;
+  --typography-display-medium-font-weight: 600;
+  --typography-display-medium-letter-spacing: -1.5px;
+
+  --typography-display-small-font-size: 40px;
+  --typography-display-small-line-height: 60px;
+  --typography-display-small-font-weight: 600;
+  --typography-display-small-letter-spacing: -0.8px;
+
+  --typography-headline-large-font-size: 32px;
+  --typography-headline-large-line-height: 96px;
+  --typography-headline-large-font-weight: 500;
+  --typography-headline-large-letter-spacing: -0.48px;
+
+  --typography-headline-medium-font-size: 28px;
+  --typography-headline-medium-line-height: 42px;
+  --typography-headline-medium-font-weight: 500;
+  --typography-headline-medium-letter-spacing: -0.49px;
+
+  --typography-headline-small-font-size: 24px;
+  --typography-headline-small-line-height: 36px;
+  --typography-headline-small-font-weight: 500;
+  --typography-headline-small-letter-spacing: -0.336px;
+
+  --typography-title-large-font-size: 22px;
+  --typography-title-large-line-height: 33px;
+  --typography-title-large-font-weight: 500;
+  --typography-title-large-letter-spacing: -0.22px;
+
+  --typography-title-medium-font-size: 16px;
+  --typography-title-medium-line-height: 24px;
+  --typography-title-medium-font-weight: 500;
+  --typography-title-medium-letter-spacing: -0.16px;
+
+  --typography-title-small-font-size: 14px;
+  --typography-title-small-line-height: 21px;
+  --typography-title-small-font-weight: 500;
+  --typography-title-small-letter-spacing: -0.126px;
+
+  --typography-body-large-font-size: 16px;
+  --typography-body-large-line-height: 24px;
+  --typography-body-large-font-weight: 500;
+  --typography-body-large-letter-spacing: -0.152px;
+
+  --typography-body-medium-font-size: 14px;
+  --typography-body-medium-line-height: 21px;
+  --typography-body-medium-font-weight: 500;
+  --typography-body-medium-letter-spacing: -0.119px;
+
+  --typography-body-small-font-size: 12px;
+  --typography-body-small-line-height: 18px;
+  --typography-body-small-font-weight: 500;
+  --typography-body-small-letter-spacing: -0.048px;
+
+  --typography-label-large-font-size: 14px;
+  --typography-label-large-line-height: 21px;
+  --typography-label-large-font-weight: 500;
+  --typography-label-large-letter-spacing: -0.119px;
+
+  --typography-label-medium-font-size: 12px;
+  --typography-label-medium-line-height: 18px;
+  --typography-label-medium-font-weight: 500;
+  --typography-label-medium-letter-spacing: -0.102px;
+
+  --typography-label-small-font-size: 11px;
+  --typography-label-small-line-height: 16.5px;
+  --typography-label-small-font-weight: 500;
+  --typography-label-small-letter-spacing: -0.044px;
+
+  /* Effects / Shadows */
+  --effect-soft-shadow: 1.5px 6px 30px 0px #0f4ee31f;
+  --effect-medium-shadow: 4px 6px 24px 0px #0f4ee32e;
+  --effect-hard-shadow: 6px 10px 20px 0px #0f4ee333;
+}
+
+/* Base resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
