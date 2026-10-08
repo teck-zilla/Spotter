@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import styles from "./page.module.css";
+import Footer from "./footer";
 
 type AuthMode = "activate" | "login";
 type ActivationStep = "code" | "privacy" | "pin" | "completed";
@@ -287,6 +288,7 @@ export default function HomeClient() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }
