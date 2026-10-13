@@ -1,0 +1,476 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
+}
+
+// ---------- enums ----------
+
+enum Tier {
+  BASIC
+  PREMIUM
+}
+
+enum StaffRole {
+  OWNER
+  DESK
+}
+
+enum CardCategory {
+  TIMETABLE
+  PRICES
+  RULES
+  ACCESS_HOURS
+  GUEST_POLICY
+  PAUSE_CANCELLATION
+  TRAINING_PLAN
+  TRAINER_GUIDANCE
+}
+
+enum CardStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  RETIRED
+}
+
+enum CheckInSource {
+  CODE
+  MANUAL
+}
+
+enum PaymentChannel {
+  IN_APP
+  CASH
+  TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  ABANDONED
+}
+
+enum PaymentPurpose {
+  RENEWAL
+  ARREARS
+}
+
+enum LedgerEntryType {
+  OPENING_BALANCE
+  CHARGE
+  PAYMENT
+  ADJUSTMENT
+}
+
+enum QuestionOutcome {
+  ANSWERED_SHARED
+  ANSWERED_PRIVATE
+  NO_ANSWER
+  REFUSED_POLICY
+  BLOCKED_UNGROUNDED
+  ERROR
+}
+
+enum RefusalReason {
+  OTHER_MEMBER
+  MEDICAL
+  DOOR_ACCESS
+  MONEY_DECISION
+  STAFF_CONDUCT
+}
+
+// ---------- gym and staff ----------
+
+model Gym {
+  id           String   @id @default(cuid())
+  name         String
+  timezone     String   @default("Africa/Lagos")
+  graceDays    Int      @default(3)
+  opensMinute  Int      @default(360)   // 06:00 local, for FR-19b
+  closesMinute Int      @default(1320)  // 22:00 local
+  createdAt    DateTime @default(now())
+
+  members      Member[]
+  staff        Staff[]
+  cards        Card[]
+  checkInCodes CheckInCode[]
+  deskShifts   DeskShift[]
+  plans        MembershipPlan[]
+}
+
+model MembershipPlan {
+  id           String   @id @default(cuid())
+  gymId        String
+  gym          Gym      @relation(fields: [gymId], references: [id])
+  tier         Tier
+  priceKobo    Int      // positive
+  durationDays Int
+  activeFrom   DateTime @default(now())
+
+  @@unique([gymId, tier, activeFrom])
+  @@index([gymId, tier])
+}
+
+model Staff {
+  id             String    @id @default(cuid())
+  gymId          String
+  gym            Gym       @relation(fields: [gymId], references: [id])
+  name           String
+  role           StaffRole
+  whatsappNumber String
+  passwordHash   String
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+
+  deskShifts          DeskShift[]
+  authoredVersions    CardVersion[] @relation("VersionAuthor")
+  approvedVersions    CardVersion[] @relation("VersionApprover")
+  issuedCodes         ActivationCode[]
+  recordedCheckIns    CheckIn[]
+  recordedPayments    Payment[]
+  recordedLedger      LedgerEntry[]
+  createdCheckInCodes CheckInCode[]
+  membershipChanges   MembershipChange[]
+  reviewedReports     WrongAnswerReport[]
+  handoffs            Handoff[]
+
+  @@index([gymId, active])
+}
+
+model DeskShift {
+  id          String @id @default(cuid())
+  gymId       String
+  gym         Gym    @relation(fields: [gymId], references: [id])
+  staffId     String
+  staff       Staff  @relation(fields: [staffId], references: [id])
+  dayOfWeek   Int    // 0 = Sunday
+  startMinute Int    // minutes from midnight, local
+  endMinute   Int
+
+  @@index([gymId, dayOfWeek])
+}
+
+// ---------- member: PRIVATE ROOT ----------
+
+model Member {
+  id                String    @id @default(cuid())
+  gymId             String
+  gym               Gym       @relation(fields: [gymId], references: [id])
+  memberNumber      String    // human readable, printed on the card
+  firstName         String
+  lastName          String
+  phone             String
+  tier              Tier      @default(BASIC)
+  expiryDate        DateTime  @db.Date
+  cancelledAt       DateTime?
+  pinHash           String?
+  deviceId          String?
+  activatedAt       DateTime?
+  privacyAcceptedAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  sessions           MemberSession[]
+  activationCodes    ActivationCode[]
+  checkIns           CheckIn[]
+  ledgerEntries      LedgerEntry[]
+  payments           Payment[]
+  paymentAttempts    PaymentAttempt[]
+  questionLogs       QuestionLog[]
+  wrongAnswerReports WrongAnswerReport[]
+  membershipChanges  MembershipChange[]
+  handoffs           Handoff[]
+  accessLogs         PrivateAccessLog[]
+
+  @@unique([gymId, memberNumber])
+  @@index([gymId, expiryDate])
+}
+
+model MemberSession {
+  id         String    @id @default(cuid())
+  memberId   String
+  member     Member    @relation(fields: [memberId], references: [id])
+  tokenHash  String    @unique
+  deviceId   String
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  revokedAt  DateTime?
+
+  @@index([memberId, revokedAt])
+}
+
+model ActivationCode {
+  id              String    @id @default(cuid())
+  memberId        String
+  member          Member    @relation(fields: [memberId], references: [id])
+  codeHash        String    @unique
+  issuedByStaffId String
+  issuedBy        Staff     @relation(fields: [issuedByStaffId], references: [id])
+  remote          Boolean   @default(false)  // FR-5b
+  reason          String?
+  expiresAt       DateTime
+  usedAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([memberId, createdAt])
+}
+
+// ---------- shared records ----------
+
+model Card {
+  id                 String       @id @default(cuid())
+  gymId              String
+  gym                Gym          @relation(fields: [gymId], references: [id])
+  category           CardCategory
+  title              String
+  minTier            Tier         @default(BASIC)
+  status             CardStatus   @default(DRAFT)
+  reviewIntervalDays Int          @default(30)
+  lastConfirmedAt    DateTime?
+  currentVersionId   String?      @unique
+  currentVersion     CardVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  versions CardVersion[] @relation("AllVersions")
+
+  @@index([gymId, status])
+  @@index([gymId, lastConfirmedAt])
+}
+
+model CardVersion {
+  id                String     @id @default(cuid())
+  cardId            String
+  card              Card       @relation("AllVersions", fields: [cardId], references: [id])
+  title             String
+  body              String
+  minTier           Tier
+  status            CardStatus @default(PENDING_APPROVAL)
+  authorStaffId     String
+  author            Staff      @relation("VersionAuthor", fields: [authorStaffId], references: [id])
+  approvedByStaffId String?
+  approvedBy        Staff?     @relation("VersionApprover", fields: [approvedByStaffId], references: [id])
+  approvedAt        DateTime?
+  rejectionNote     String?
+  createdAt         DateTime   @default(now())
+
+  currentFor Card?       @relation("CurrentVersion")
+  chunks     CardChunk[]
+
+  @@index([cardId, status])
+}
+
+model CardChunk {
+  id            String                       @id @default(cuid())
+  cardVersionId String
+  cardVersion   CardVersion                  @relation(fields: [cardVersionId], references: [id], onDelete: Cascade)
+  chunkIndex    Int
+  content       String
+  category      CardCategory
+  minTier       Tier
+  embedding     Unsupported("vector(768)")?
+  createdAt     DateTime                     @default(now())
+
+  @@unique([cardVersionId, chunkIndex])
+}
+
+// ---------- attendance ----------
+
+model CheckInCode {
+  id               String   @id @default(cuid())
+  gymId            String
+  gym              Gym      @relation(fields: [gymId], references: [id])
+  forDate          DateTime @db.Date
+  code             String   // four digits
+  createdByStaffId String?
+  createdBy        Staff?   @relation(fields: [createdByStaffId], references: [id])
+  createdAt        DateTime @default(now())
+
+  checkIns CheckIn[]
+
+  @@unique([gymId, forDate])
+}
+
+model CheckIn {
+  id                String        @id @default(cuid())
+  memberId          String
+  member            Member        @relation(fields: [memberId], references: [id])
+  checkInDate       DateTime      @db.Date
+  checkedInAt       DateTime      @default(now())
+  source            CheckInSource @default(CODE)
+  checkInCodeId     String?
+  checkInCode       CheckInCode?  @relation(fields: [checkInCodeId], references: [id])
+  recordedByStaffId String?
+  recordedBy        Staff?        @relation(fields: [recordedByStaffId], references: [id])
+  deviceId          String?       // for the burst check in FR-19c
+
+  @@unique([memberId, checkInDate])
+  @@index([memberId, checkInDate])
+  @@index([checkedInAt])
+}
+
+// ---------- money ----------
+
+model LedgerEntry {
+  id                String          @id @default(cuid())
+  memberId          String
+  member            Member          @relation(fields: [memberId], references: [id])
+  type              LedgerEntryType
+  amountKobo        Int
+  occurredAt        DateTime
+  periodLabel       String?         // "July 2026"
+  description       String
+  paymentId         String?         @unique
+  payment           Payment?        @relation(fields: [paymentId], references: [id])
+  recordedByStaffId String?
+  recordedBy        Staff?          @relation(fields: [recordedByStaffId], references: [id])
+  createdAt         DateTime        @default(now())
+
+  @@index([memberId, occurredAt])
+}
+
+model Payment {
+  id                String         @id @default(cuid())
+  memberId          String
+  member            Member         @relation(fields: [memberId], references: [id])
+  amountKobo        Int
+  feeKobo           Int            @default(0)
+  channel           PaymentChannel
+  purpose           PaymentPurpose
+  status            PaymentStatus  @default(SUCCESS)
+  reference         String         @unique
+  gatewayReference  String?        @unique
+  paidAt            DateTime
+  recordedByStaffId String?
+  recordedBy        Staff?         @relation(fields: [recordedByStaffId], references: [id])
+  rawWebhook        Json?
+  createdAt         DateTime       @default(now())
+
+  ledgerEntry LedgerEntry?
+  attempt     PaymentAttempt?
+
+  @@index([memberId, paidAt])
+  @@index([channel, paidAt])
+}
+
+model PaymentAttempt {
+  id             String         @id @default(cuid())
+  memberId       String
+  member         Member         @relation(fields: [memberId], references: [id])
+  reference      String         @unique
+  idempotencyKey String         @unique
+  amountKobo     Int
+  purpose        PaymentPurpose
+  status         PaymentStatus  @default(PENDING)
+  failureReason  String?
+  initiatedAt    DateTime       @default(now())
+  resolvedAt     DateTime?
+  paymentId      String?        @unique
+  payment        Payment?       @relation(fields: [paymentId], references: [id])
+
+  @@index([memberId, status])
+  @@index([status, initiatedAt])
+}
+
+model MembershipChange {
+  id               String   @id @default(cuid())
+  memberId         String
+  member           Member   @relation(fields: [memberId], references: [id])
+  field            String   // "tier" or "expiryDate"
+  oldValue         String
+  newValue         String
+  reason           String   // "renewal payment REF" or "manual edit"
+  changedByStaffId String?
+  changedBy        Staff?   @relation(fields: [changedByStaffId], references: [id])
+  changedAt        DateTime @default(now())
+
+  @@index([memberId, changedAt])
+}
+
+// ---------- logs ----------
+
+model PrivateAccessLog {
+  id              String   @id @default(cuid())
+  sessionMemberId String
+  targetMemberId  String
+  member          Member   @relation(fields: [targetMemberId], references: [id])
+  functionName    String
+  accessedAt      DateTime @default(now())
+
+  @@index([accessedAt])
+  @@index([targetMemberId, accessedAt])
+}
+
+model QuestionLog {
+  id             String          @id @default(cuid())
+  memberId       String
+  member         Member          @relation(fields: [memberId], references: [id])
+  tierAtAsk      Tier
+  questionText   String
+  intent         String
+  outcome        QuestionOutcome
+  refusalReason  RefusalReason?
+  refusedBy      String?         // "RULES" or "MODEL"
+  cardVersionIds String[]
+  topScore       Float?
+  answerText     String?
+  latencyMs      Int?
+  askedAt        DateTime        @default(now())
+
+  reports  WrongAnswerReport[]
+  handoffs Handoff[]
+  audits   AnswerAudit[]
+
+  @@index([memberId, askedAt])
+  @@index([outcome, askedAt])
+}
+
+model WrongAnswerReport {
+  id                String      @id @default(cuid())
+  questionLogId     String
+  questionLog       QuestionLog @relation(fields: [questionLogId], references: [id])
+  memberId          String
+  member            Member      @relation(fields: [memberId], references: [id])
+  note              String?
+  reportedAt        DateTime    @default(now())
+  reviewedAt        DateTime?
+  reviewedByStaffId String?
+  reviewedBy        Staff?      @relation(fields: [reviewedByStaffId], references: [id])
+  resolution        String?
+
+  @@index([reviewedAt, reportedAt])
+}
+
+model AnswerAudit {
+  id            String      @id @default(cuid())
+  questionLogId String
+  questionLog   QuestionLog @relation(fields: [questionLogId], references: [id])
+  correct       Boolean
+  note          String?
+  auditedAt     DateTime    @default(now())
+
+  @@index([auditedAt])
+}
+
+model Handoff {
+  id             String      @id @default(cuid())
+  questionLogId  String
+  questionLog    QuestionLog @relation(fields: [questionLogId], references: [id])
+  memberId       String
+  member         Member      @relation(fields: [memberId], references: [id])
+  staffId        String
+  staff          Staff       @relation(fields: [staffId], references: [id])
+  openedWhatsapp Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+
+  @@index([staffId, createdAt])
+}

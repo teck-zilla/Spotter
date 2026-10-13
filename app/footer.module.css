@@ -19,7 +19,10 @@
 .footerBrandLink {
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 6px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   cursor: pointer;
   color: var(--color-on-surface-variant);
   font-family: inherit;
@@ -28,22 +31,31 @@
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s ease;
+  border-radius: 6px;
 }
 
 .footerBrandLink:hover {
   color: var(--color-primary);
 }
 
+.footerBrandLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .footerRight {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .footerNavLink {
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 8px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   cursor: pointer;
   color: var(--color-on-surface-variant);
   font-family: inherit;
@@ -52,11 +64,17 @@
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s ease;
+  border-radius: 6px;
 }
 
 .footerNavLink:hover {
   color: var(--color-primary);
   text-decoration: underline;
+}
+
+.footerNavLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .footerNavLinkActive {
@@ -69,11 +87,11 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 12px;
-    padding: 16px 20px;
+    gap: 8px;
+    padding: 12px 20px;
   }
 
   .footerRight {
-    gap: 16px;
+    gap: 12px;
   }
 }

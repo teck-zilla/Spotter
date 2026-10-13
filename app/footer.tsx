@@ -16,23 +16,26 @@ export default function Footer({ activeView = "home", onSelectView }: FooterProp
   };
 
   return (
-    <footer className={styles.footer} role="contentinfo">
+    <footer className={styles.footer} role="contentinfo" aria-label="Site footer">
       <div className={styles.footerLeft}>
         <a
           href="#"
           onClick={(e) => handleNav(e, "home")}
           className={styles.footerBrandLink}
+          aria-label="Spotter gym member system home"
         >
           Spotter gym member system
         </a>
       </div>
-      <div className={styles.footerRight}>
+      <nav className={styles.footerRight} aria-label="Legal links">
         <a
           href="#privacy"
           onClick={(e) => handleNav(e, "privacy")}
           className={`${styles.footerNavLink} ${
             activeView === "privacy" ? styles.footerNavLinkActive : ""
           }`}
+          aria-label="View privacy policy"
+          aria-current={activeView === "privacy" ? "page" : undefined}
         >
           privacy policy
         </a>
@@ -42,10 +45,12 @@ export default function Footer({ activeView = "home", onSelectView }: FooterProp
           className={`${styles.footerNavLink} ${
             activeView === "terms" ? styles.footerNavLinkActive : ""
           }`}
+          aria-label="View terms of service"
+          aria-current={activeView === "terms" ? "page" : undefined}
         >
           terms of service
         </a>
-      </div>
+      </nav>
     </footer>
   );
 }

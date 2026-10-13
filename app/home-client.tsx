@@ -87,6 +87,20 @@ export default function HomeClient() {
     }
   };
 
+  // Keyboard navigation for WAI-ARIA tabs (ArrowLeft/ArrowRight)
+  const handleTabKeyDown = (e: React.KeyboardEvent, currentMode: AuthMode) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      e.preventDefault();
+      const nextMode = currentMode === "activate" ? "login" : "activate";
+      setAuthMode(nextMode);
+      setErrorMsg(null);
+      const nextTabId = nextMode === "activate" ? "tab-activate" : "tab-login";
+      setTimeout(() => {
+        document.getElementById(nextTabId)?.focus();
+      }, 0);
+    }
+  };
+
   // Handle 8-character activation code submission (FR-1, FR-2)
   const handleActivationCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,6 +169,11 @@ export default function HomeClient() {
 
   return (
     <div className={styles.container}>
+      {/* Skip Navigation Link for Keyboard & Screen Reader Users (WCAG 2.4.1) */}
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to main content
+      </a>
+
       {/* Top Brand Header */}
       <header className={styles.header}>
         <button
@@ -169,17 +188,28 @@ export default function HomeClient() {
         >
           <Image
             src="/icon.svg"
-            alt="Spotter"
+            alt=""
             width={32}
             height={32}
             priority
             className={styles.logoImage}
+            aria-hidden="true"
           />
           <span className={styles.brandName}>Spotter</span>
         </button>
 
         <div className={styles.headerRight}>
-          <span className={styles.badge}>
+          <span
+            className={styles.badge}
+            role="status"
+            aria-label={`Current view: ${
+              activeView === "privacy"
+                ? "Privacy Notice"
+                : activeView === "terms"
+                ? "Terms of Service"
+                : "Member App"
+            }`}
+          >
             {activeView === "privacy"
               ? "Privacy Notice"
               : activeView === "terms"
@@ -192,6 +222,7 @@ export default function HomeClient() {
             type="button"
             onClick={handleGetStarted}
             className={styles.desktopGetStartedBtn}
+            aria-label="Get started with device activation"
           >
             Get Started
           </button>
@@ -201,8 +232,9 @@ export default function HomeClient() {
             type="button"
             className={styles.hamburgerBtn}
             onClick={() => setMobileMenuOpen((prev) => !prev)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-menu"
           >
             {mobileMenuOpen ? (
               <svg
@@ -214,6 +246,8 @@ export default function HomeClient() {
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
               >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -228,6 +262,8 @@ export default function HomeClient() {
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
               >
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -239,55 +275,74 @@ export default function HomeClient() {
 
         {/* Mobile Dropdown Menu: Revealed only when user clicks hamburger icon */}
         {mobileMenuOpen && (
-          <div className={styles.mobileMenu} role="dialog" aria-label="Mobile Navigation">
+          <nav
+            id="mobile-nav-menu"
+            className={styles.mobileMenu}
+            aria-label="Mobile Navigation"
+          >
             <button
               type="button"
               onClick={handleGetStarted}
               className={styles.mobileGetStartedBtn}
+              aria-label="Get started with device activation"
             >
               Get Started
             </button>
-          </div>
+          </nav>
         )}
       </header>
 
       {/* Main 100vh Content */}
-      <main className={styles.mainContent}>
+      <main id="main-content" className={styles.mainContent}>
         {activeView === "home" && (
-          <section className={styles.heroCard}>
+          <section className={styles.heroCard} aria-labelledby="hero-title">
           <div className={styles.heroHeader}>
             <span className={styles.eyebrow}>Your Gym, Your Records</span>
-            <h1 className={styles.heroTitle}>Spotter</h1>
+            <h1 id="hero-title" className={styles.heroTitle}>Spotter</h1>
             <p className={styles.heroSubtitle}>
               Check in at the door, verify your attendance and balance, and pay renewals with zero guesswork.
             </p>
           </div>
 
           {/* Core Feature Highlights */}
-          <div className={styles.featuresGrid}>
-            <div className={styles.featureItem}>
-              <span className={styles.featureTitle}>⚡ Instant Check-In</span>
+          <div className={styles.featuresGrid} role="list" aria-label="Key Spotter features">
+            <div className={styles.featureItem} role="listitem">
+              <h2 className={styles.featureTitle}>
+                <span aria-hidden="true">⚡ </span>Instant Check-In
+              </h2>
               <span className={styles.featureDesc}>Enter today&apos;s 4-digit code in 3 seconds.</span>
             </div>
-            <div className={styles.featureItem}>
-              <span className={styles.featureTitle}>📋 My Records</span>
+            <div className={styles.featureItem} role="listitem">
+              <h2 className={styles.featureTitle}>
+                <span aria-hidden="true">📋 </span>My Records
+              </h2>
               <span className={styles.featureDesc}>Exact attendance history &amp; balance facts.</span>
             </div>
-            <div className={styles.featureItem}>
-              <span className={styles.featureTitle}>💳 Renew &amp; Pay</span>
+            <div className={styles.featureItem} role="listitem">
+              <h2 className={styles.featureTitle}>
+                <span aria-hidden="true">💳 </span>Renew &amp; Pay
+              </h2>
               <span className={styles.featureDesc}>Instant subscription renewal via gateway.</span>
             </div>
-            <div className={styles.featureItem}>
-              <span className={styles.featureTitle}>💬 Ask the Desk</span>
+            <div className={styles.featureItem} role="listitem">
+              <h2 className={styles.featureTitle}>
+                <span aria-hidden="true">💬 </span>Ask the Desk
+              </h2>
               <span className={styles.featureDesc}>Direct WhatsApp handoff to officer on duty.</span>
             </div>
           </div>
 
-          {/* Authentication Mode Switcher */}
+          {/* Authentication Mode Switcher with Arrow Key Navigation */}
           {!sessionSuccess && (
-            <div className={styles.authTabs}>
+            <div className={styles.authTabs} role="tablist" aria-label="Authentication modes">
               <button
+                id="tab-activate"
                 type="button"
+                role="tab"
+                aria-selected={authMode === "activate"}
+                aria-controls="auth-panel-activate"
+                tabIndex={authMode === "activate" ? 0 : -1}
+                onKeyDown={(e) => handleTabKeyDown(e, "activate")}
                 className={`${styles.authTabButton} ${
                   authMode === "activate" ? styles.authTabButtonActive : ""
                 }`}
@@ -299,7 +354,13 @@ export default function HomeClient() {
                 Activate Device
               </button>
               <button
+                id="tab-login"
                 type="button"
+                role="tab"
+                aria-selected={authMode === "login"}
+                aria-controls="auth-panel-login"
+                tabIndex={authMode === "login" ? 0 : -1}
+                onKeyDown={(e) => handleTabKeyDown(e, "login")}
                 className={`${styles.authTabButton} ${
                   authMode === "login" ? styles.authTabButtonActive : ""
                 }`}
@@ -313,18 +374,36 @@ export default function HomeClient() {
             </div>
           )}
 
-          {errorMsg && <div className={styles.errorBanner}>{errorMsg}</div>}
+          {errorMsg && (
+            <div
+              className={styles.errorBanner}
+              role="alert"
+              aria-live="assertive"
+              id="auth-error-msg"
+            >
+              {errorMsg}
+            </div>
+          )}
 
           {/* Success Session Feedback */}
           {sessionSuccess ? (
-            <div className={styles.successBanner}>
+            <div className={styles.successBanner} role="status" aria-live="polite">
               ✓ Device authenticated! Welcome to Spotter.
             </div>
           ) : authMode === "activate" ? (
             /* Activation Flow (FR-1 to FR-4) */
-            <div className={styles.authPanel}>
+            <div
+              id="auth-panel-activate"
+              className={styles.authPanel}
+              role="tabpanel"
+              aria-labelledby="tab-activate"
+            >
               {activationStep === "code" && (
-                <form onSubmit={handleActivationCodeSubmit} className={styles.authPanel}>
+                <form
+                  onSubmit={handleActivationCodeSubmit}
+                  className={styles.authPanel}
+                  aria-label="Device activation form"
+                >
                   <div className={styles.inputGroup}>
                     <label htmlFor="activationCode" className={styles.label}>
                       Front Desk Activation Code
@@ -341,9 +420,16 @@ export default function HomeClient() {
                       value={activationCode}
                       onChange={(e) => setActivationCode(e.target.value.toUpperCase())}
                       autoFocus
+                      aria-required="true"
+                      aria-invalid={!!errorMsg}
+                      aria-describedby={errorMsg ? "auth-error-msg" : undefined}
                     />
                   </div>
-                  <button type="submit" className={styles.primaryButton}>
+                  <button
+                    type="submit"
+                    className={styles.primaryButton}
+                    aria-label="Continue with activation code"
+                  >
                     Continue with Code
                   </button>
                 </form>
@@ -351,8 +437,10 @@ export default function HomeClient() {
 
               {activationStep === "privacy" && (
                 <div className={styles.authPanel}>
-                  <div className={styles.privacyBox}>
-                    <span className={styles.privacyTitle}>Data Privacy Notice</span>
+                  <div className={styles.privacyBox} role="region" aria-labelledby="privacy-notice-title">
+                    <span id="privacy-notice-title" className={styles.privacyTitle}>
+                      Data Privacy Notice
+                    </span>
                     <p className={styles.privacyText}>
                       Spotter stores your attendance timestamps, subscription validity, and payment receipts.
                       Private records are fetched by your exact member ID and never shared or indexed into search.
@@ -363,6 +451,7 @@ export default function HomeClient() {
                     type="button"
                     onClick={handleAcceptPrivacy}
                     className={styles.primaryButton}
+                    aria-label="Accept data privacy notice and continue to PIN setup"
                   >
                     I Accept &amp; Continue
                   </button>
@@ -370,9 +459,21 @@ export default function HomeClient() {
               )}
 
               {activationStep === "pin" && (
-                <form onSubmit={handlePinSetupSubmit} className={styles.authPanel}>
-                  <div role="group" aria-labelledby="new-pin-label" className={styles.inputGroup}>
+                <form
+                  onSubmit={handlePinSetupSubmit}
+                  className={styles.authPanel}
+                  aria-label="PIN setup form"
+                >
+                  <div
+                    role="group"
+                    aria-labelledby="new-pin-label"
+                    aria-describedby="pin-helper-desc"
+                    className={styles.inputGroup}
+                  >
                     <span id="new-pin-label" className={styles.label}>Create Your 4-Digit PIN</span>
+                    <span id="pin-helper-desc" className={styles.srOnly}>
+                      Enter 4 digits. Focus advances automatically to the next input field as each digit is entered.
+                    </span>
                     <div className={styles.pinInputsContainer}>
                       {[0, 1, 2, 3].map((i) => (
                         <input
@@ -381,7 +482,8 @@ export default function HomeClient() {
                           type="password"
                           inputMode="numeric"
                           maxLength={1}
-                          aria-label={`New PIN digit ${i + 1}`}
+                          aria-label={`New PIN digit ${i + 1} of 4`}
+                          aria-required="true"
                           autoComplete="one-time-code"
                           className={styles.pinDigitInput}
                           value={newPin[i]}
@@ -390,7 +492,11 @@ export default function HomeClient() {
                       ))}
                     </div>
                   </div>
-                  <button type="submit" className={styles.primaryButton}>
+                  <button
+                    type="submit"
+                    className={styles.primaryButton}
+                    aria-label="Complete device setup with new PIN"
+                  >
                     Complete Device Setup
                   </button>
                 </form>
@@ -398,40 +504,62 @@ export default function HomeClient() {
             </div>
           ) : (
             /* PIN Unlock Flow (FR-6, FR-7) */
-            <form onSubmit={handleLoginSubmit} className={styles.authPanel}>
-              <div role="group" aria-labelledby="login-pin-label" className={styles.inputGroup}>
-                <span id="login-pin-label" className={styles.label}>Enter Your 4-Digit PIN</span>
-                <div className={styles.pinInputsContainer}>
-                  {[0, 1, 2, 3].map((i) => (
-                    <input
-                      key={`login-pin-${i}`}
-                      id={`login-pin-digit-${i}`}
-                      type="password"
-                      inputMode="numeric"
-                      maxLength={1}
-                      aria-label={`PIN digit ${i + 1}`}
-                      autoComplete="current-password"
-                      className={styles.pinDigitInput}
-                      value={pin[i]}
-                      onChange={(e) => handlePinChange(i, e.target.value, false)}
-                    />
-                  ))}
+            <div
+              id="auth-panel-login"
+              className={styles.authPanel}
+              role="tabpanel"
+              aria-labelledby="tab-login"
+            >
+              <form
+                onSubmit={handleLoginSubmit}
+                className={styles.authPanel}
+                aria-label="PIN login form"
+              >
+                <div
+                  role="group"
+                  aria-labelledby="login-pin-label"
+                  aria-describedby="pin-helper-desc"
+                  className={styles.inputGroup}
+                >
+                  <span id="login-pin-label" className={styles.label}>Enter Your 4-Digit PIN</span>
+                  <div className={styles.pinInputsContainer}>
+                    {[0, 1, 2, 3].map((i) => (
+                      <input
+                        key={`login-pin-${i}`}
+                        id={`login-pin-digit-${i}`}
+                        type="password"
+                        inputMode="numeric"
+                        maxLength={1}
+                        aria-label={`PIN digit ${i + 1} of 4`}
+                        aria-required="true"
+                        autoComplete="current-password"
+                        className={styles.pinDigitInput}
+                        value={pin[i]}
+                        onChange={(e) => handlePinChange(i, e.target.value, false)}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-              <button type="submit" className={styles.primaryButton}>
-                Unlock App
-              </button>
-            </form>
+                <button
+                  type="submit"
+                  className={styles.primaryButton}
+                  aria-label="Unlock Spotter app with PIN"
+                >
+                  Unlock App
+                </button>
+              </form>
+            </div>
           )}
 
           {/* Member Assistance & WhatsApp Handoff (PRD 6.1 Empty State) */}
-          <div className={styles.footerNote}>
+          <div className={styles.footerNote} role="note" aria-label="Activation code assistance">
             Need an activation code? Ask at the front desk or{" "}
             <a
               href="https://wa.me/?text=Hello%2C%20I%20need%20my%20Spotter%20activation%20code"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.footerLink}
+              aria-label="Message front desk on WhatsApp for activation code (opens in new tab)"
             >
               message the desk on WhatsApp
             </a>
@@ -442,7 +570,7 @@ export default function HomeClient() {
 
         {/* Conditional Privacy Notice View (FR-3, FR-58) */}
         {activeView === "privacy" && (
-          <section className={styles.viewContainer} aria-labelledby="privacy-heading">
+          <section className={styles.viewContainer} aria-labelledby="privacy-heading" role="region">
             <div className={styles.viewHeader}>
               <span className={styles.viewBadge}>Privacy Notice</span>
               <h1 id="privacy-heading" className={styles.viewTitle}>Data Privacy Notice</h1>
@@ -492,6 +620,7 @@ export default function HomeClient() {
                 type="button"
                 onClick={() => handleSelectView("home")}
                 className={styles.viewBackButton}
+                aria-label="Return to Spotter home view"
               >
                 &larr; Return to Spotter
               </button>
@@ -501,7 +630,7 @@ export default function HomeClient() {
 
         {/* Conditional Terms of Service View (FR-19, FR-20) */}
         {activeView === "terms" && (
-          <section className={styles.viewContainer} aria-labelledby="terms-heading">
+          <section className={styles.viewContainer} aria-labelledby="terms-heading" role="region">
             <div className={styles.viewHeader}>
               <span className={styles.viewBadge}>Terms of Service</span>
               <h1 id="terms-heading" className={styles.viewTitle}>Gym Terms of Service</h1>
@@ -551,6 +680,7 @@ export default function HomeClient() {
                 type="button"
                 onClick={() => handleSelectView("home")}
                 className={styles.viewBackButton}
+                aria-label="Return to Spotter home view"
               >
                 &larr; Return to Spotter
               </button>

@@ -1,5 +1,39 @@
 /* Spotter 100vh Marketing & Member Auth Landing Page */
 
+.skipLink {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: var(--typography-label-large-font-size);
+  text-decoration: none;
+  z-index: 1000;
+  box-shadow: var(--effect-medium-shadow);
+  transition: top 0.2s ease;
+}
+
+.skipLink:focus {
+  top: 16px;
+  outline: 3px solid var(--color-on-primary);
+  outline-offset: 2px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .container {
   min-height: 100vh;
   display: flex;
@@ -48,6 +82,11 @@
 .desktopGetStartedBtn:hover {
   background-color: var(--color-on-primary-container);
   transform: translateY(-1px);
+}
+
+.desktopGetStartedBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 .hamburgerBtn {
@@ -125,10 +164,21 @@
   background-color: var(--color-on-primary-container);
 }
 
+.mobileGetStartedBtn:focus-visible {
+  outline: 2px solid var(--color-on-primary);
+  outline-offset: -3px;
+}
+
 .brandGroup {
   display: flex;
   align-items: center;
   gap: 10px;
+  border-radius: 8px;
+}
+
+.brandGroup:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
 }
 
 .logoImage {
@@ -225,6 +275,7 @@
 }
 
 .featureTitle {
+  margin: 0;
   font-size: var(--typography-label-large-font-size);
   font-weight: var(--typography-label-large-font-weight);
   color: var(--color-primary);
@@ -264,6 +315,11 @@
   box-shadow: var(--effect-soft-shadow);
 }
 
+.authTabButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .authPanel {
   display: flex;
   flex-direction: column;
@@ -286,7 +342,7 @@
   width: 100%;
   padding: 12px 14px;
   border-radius: 10px;
-  border: 1.5px solid var(--color-outline-color);
+  border: 1.5px solid #717682;
   background-color: var(--color-surface-container-lowest);
   color: var(--color-on-surface);
   font-family: var(--font-family-base);
@@ -303,6 +359,11 @@
   box-shadow: 0 0 0 3px var(--color-primary-fixed);
 }
 
+.inputField:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .pinInputsContainer {
   display: flex;
   justify-content: center;
@@ -313,7 +374,7 @@
   width: 52px;
   height: 56px;
   border-radius: 12px;
-  border: 1.5px solid var(--color-outline-color);
+  border: 1.5px solid #717682;
   background-color: var(--color-surface-container-lowest);
   color: var(--color-primary);
   font-family: var(--font-family-base);
@@ -327,6 +388,11 @@
 .pinDigitInput:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-fixed);
+}
+
+.pinDigitInput:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .primaryButton {
@@ -354,6 +420,11 @@
 
 .primaryButton:active {
   opacity: 0.9;
+}
+
+.primaryButton:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 .privacyBox {
@@ -413,6 +484,42 @@
 
 .footerLink:hover {
   text-decoration: underline;
+}
+
+.footerLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.viewBackButton:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+.viewBackButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (max-width: 640px) {
+  .desktopGetStartedBtn {
+    display: none;
+  }
+
+  .hamburgerBtn {
+    display: flex;
+  }
+
+  .mobileMenu {
+    display: flex;
+  }
+
+  .viewContainer {
+    padding: 24px 20px;
+    gap: 18px;
+  }
 }
 
 /* Conditional Views (Privacy Policy & Terms of Service) */
